@@ -1,1 +1,277 @@
-This phase requires the input to be in string. In order to diffuse the bomb, the string inputted should be correct or else the bomb will explode. I knew that the input should be in
+This phase requires the input to be in string. In order to diffuse the bomb, the string inputted should be correct or else the bomb will explode. I knew that the input should 
+be in string format because in the Assembly language, there is a function which checks whether the string we input matches with the one that is expected.
+
+//Phase 1
+
+Microsoft Windows [Version 10.0.19042.1165]
+(c) Microsoft Corporation. All rights reserved.
+
+D:\5th Semester\Computer System I (ITS304)\New folder\Assignment 1\bomb002>bash                       //to access the ubuntu terminal on windows.
+tshery@MSI:/mnt/d/5th Semester/Computer System I (ITS304)/New folder/Assignment 1/bomb002$ gdb bomb
+GNU gdb (Ubuntu 9.2-0ubuntu1~20.04) 9.2
+Copyright (C) 2020 Free Software Foundation, Inc.
+License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.
+Type "show copying" and "show warranty" for details.
+This GDB was configured as "x86_64-linux-gnu".
+Type "show configuration" for configuration details.
+For bug reporting instructions, please see:
+<http://www.gnu.org/software/gdb/bugs/>.
+Find the GDB manual and other documentation resources online at:
+    <http://www.gnu.org/software/gdb/documentation/>.
+
+For help, type "help".
+Type "apropos word" to search for commands related to "word"...
+Reading symbols from bomb...
+(gdb) b phase_1                                                                                        //Set breakpopints to avoid explosion
+Breakpoint 1 at 0x400e8d
+(gdb) r
+Starting program: /mnt/d/5th Semester/Computer System I (ITS304)/New folder/Assignment 1/bomb002/bomb
+Welcome to my fiendish little bomb. You have 6 phases with
+which to blow yourself up. Have a nice day!
+hello
+
+Breakpoint 1, 0x0000000000400e8d in phase_1 ()
+(gdb) disas                                                                                             //To disassemble the code
+Dump of assembler code for function phase_1:
+=> 0x0000000000400e8d <+0>:     sub    $0x8,%rsp                                                        //Building stack frame with 8 more bytes  
+   0x0000000000400e91 <+4>:     mov    $0x4023cc,%esi                                                   //String is being moved from $0x4023cc to $esi                                                  
+   0x0000000000400e96 <+9>:     callq  0x401339 <strings_not_equal>                                     //Compare user input with the expected answer
+   0x0000000000400e9b <+14>:    test   %eax,%eax
+   0x0000000000400e9d <+16>:    je     0x400ea4 <phase_1+23>
+   0x0000000000400e9f <+18>:    callq  0x401438 <explode_bomb>
+   0x0000000000400ea4 <+23>:    add    $0x8,%rsp
+   0x0000000000400ea8 <+27>:    retq
+End of assembler dump.
+
+//To examine what is being moved from $0x4023cc. 
+
+(gdb) x/s 0x4023cc
+0x4023cc:       "Public speaking is very easy."
+
+// This string was being moved.
+
+//To see what happens at <strings_not_equal>
+
+(gdb) disas
+Dump of assembler code for function phase_1:
+=> 0x0000000000400e8d <+0>:     sub    $0x8,%rsp
+   0x0000000000400e91 <+4>:     mov    $0x4023cc,%esi
+   0x0000000000400e96 <+9>:     callq  0x401339 <strings_not_equal>
+   0x0000000000400e9b <+14>:    test   %eax,%eax
+   0x0000000000400e9d <+16>:    je     0x400ea4 <phase_1+23>
+   0x0000000000400e9f <+18>:    callq  0x401438 <explode_bomb>
+   0x0000000000400ea4 <+23>:    add    $0x8,%rsp
+   0x0000000000400ea8 <+27>:    retq
+End of assembler dump.
+(gdb) until *0x0000000000400e96
+0x0000000000400e96 in phase_1 ()
+(gdb) disas
+Dump of assembler code for function phase_1:
+   0x0000000000400e8d <+0>:     sub    $0x8,%rsp
+   0x0000000000400e91 <+4>:     mov    $0x4023cc,%esi
+=> 0x0000000000400e96 <+9>:     callq  0x401339 <strings_not_equal>
+   0x0000000000400e9b <+14>:    test   %eax,%eax
+   0x0000000000400e9d <+16>:    je     0x400ea4 <phase_1+23>
+   0x0000000000400e9f <+18>:    callq  0x401438 <explode_bomb>
+   0x0000000000400ea4 <+23>:    add    $0x8,%rsp
+   0x0000000000400ea8 <+27>:    retq
+End of assembler dump.
+(gdb) si
+0x0000000000401339 in strings_not_equal ()
+(gdb) disas
+Dump of assembler code for function strings_not_equal:
+=> 0x0000000000401339 <+0>:     push   %r12
+   0x000000000040133b <+2>:     push   %rbp
+   0x000000000040133c <+3>:     push   %rbx
+   0x000000000040133d <+4>:     mov    %rdi,%rbx
+   0x0000000000401340 <+7>:     mov    %rsi,%rbp
+   0x0000000000401343 <+10>:    callq  0x40131b <string_length>
+   0x0000000000401348 <+15>:    mov    %eax,%r12d
+   0x000000000040134b <+18>:    mov    %rbp,%rdi
+   0x000000000040134e <+21>:    callq  0x40131b <string_length>
+   0x0000000000401353 <+26>:    mov    $0x1,%edx
+   0x0000000000401358 <+31>:    cmp    %eax,%r12d
+   0x000000000040135b <+34>:    jne    0x401399 <strings_not_equal+96>
+   0x000000000040135d <+36>:    movzbl (%rbx),%eax
+   0x0000000000401360 <+39>:    test   %al,%al
+   0x0000000000401362 <+41>:    je     0x401386 <strings_not_equal+77>
+   0x0000000000401364 <+43>:    cmp    0x0(%rbp),%al
+   0x0000000000401367 <+46>:    je     0x401370 <strings_not_equal+55>
+   0x0000000000401369 <+48>:    jmp    0x40138d <strings_not_equal+84>
+   0x000000000040136b <+50>:    cmp    0x0(%rbp),%al
+   0x000000000040136e <+53>:    jne    0x401394 <strings_not_equal+91>
+   0x0000000000401370 <+55>:    add    $0x1,%rbx
+   0x0000000000401374 <+59>:    add    $0x1,%rbp
+   0x0000000000401378 <+63>:    movzbl (%rbx),%eax
+   0x000000000040137b <+66>:    test   %al,%al
+   0x000000000040137d <+68>:    jne    0x40136b <strings_not_equal+50>
+   0x000000000040137f <+70>:    mov    $0x0,%edx
+   0x0000000000401384 <+75>:    jmp    0x401399 <strings_not_equal+96>
+   0x0000000000401386 <+77>:    mov    $0x0,%edx
+--Type <RET> for more, q to quit, c to continue without paging--
+   0x000000000040138b <+82>:    jmp    0x401399 <strings_not_equal+96>
+   0x000000000040138d <+84>:    mov    $0x1,%edx
+   0x0000000000401392 <+89>:    jmp    0x401399 <strings_not_equal+96>
+   0x0000000000401394 <+91>:    mov    $0x1,%edx
+   0x0000000000401399 <+96>:    mov    %edx,%eax
+   0x000000000040139b <+98>:    pop    %rbx
+   0x000000000040139c <+99>:    pop    %rbp
+   0x000000000040139d <+100>:   pop    %r12
+   0x000000000040139f <+102>:   retq
+End of assembler dump.
+
+//Now to see what happens at text %eax, %eax. By doing AND operation, if the resultant value is 1, it means user input does not match the answer and will call the bomb.
+
+(gdb) disas
+Dump of assembler code for function phase_1:
+=> 0x0000000000400e8d <+0>:     sub    $0x8,%rsp
+   0x0000000000400e91 <+4>:     mov    $0x4023cc,%esi
+   0x0000000000400e96 <+9>:     callq  0x401339 <strings_not_equal>
+   0x0000000000400e9b <+14>:    test   %eax,%eax
+   0x0000000000400e9d <+16>:    je     0x400ea4 <phase_1+23>
+   0x0000000000400e9f <+18>:    callq  0x401438 <explode_bomb>
+   0x0000000000400ea4 <+23>:    add    $0x8,%rsp
+   0x0000000000400ea8 <+27>:    retq
+End of assembler dump.
+(gdb) u *0x0000000000400e9b
+0x0000000000400e9b in phase_1 ()
+(gdb) disas
+Dump of assembler code for function phase_1:
+   0x0000000000400e8d <+0>:     sub    $0x8,%rsp
+   0x0000000000400e91 <+4>:     mov    $0x4023cc,%esi
+   0x0000000000400e96 <+9>:     callq  0x401339 <strings_not_equal>
+=> 0x0000000000400e9b <+14>:    test   %eax,%eax
+   0x0000000000400e9d <+16>:    je     0x400ea4 <phase_1+23>
+   0x0000000000400e9f <+18>:    callq  0x401438 <explode_bomb>
+   0x0000000000400ea4 <+23>:    add    $0x8,%rsp
+   0x0000000000400ea8 <+27>:    retq
+End of assembler dump.
+(gdb) i r
+rax            0x1                 1                                              1 AND 1=1. So, the a\input was incorrect and the bomb will explode                                 
+rbx            0x4021f0            4202992
+rcx            0x5                 5
+rdx            0x1                 1
+rsi            0x4023cc            4203468
+rdi            0x4023e9            4203497
+rbp            0x0                 0x0
+rsp            0x7ffffffee2c0      0x7ffffffee2c0
+r8             0x6037a0            6305696
+r9             0x7c                124
+r10            0xfffffffffffff6ed  -2323
+r11            0x7fffff5e7400      140737477768192
+r12            0x400c60            4197472
+r13            0x7ffffffee3c0      140737488282560
+r14            0x0                 0
+r15            0x0                 0
+rip            0x400e9b            0x400e9b <phase_1+14>
+eflags         0x297               [ CF PF AF SF IF ]
+cs             0x33                51
+ss             0x2b                43
+ds             0x0                 0
+es             0x0                 0
+fs             0x0                 0
+gs             0x0                 0
+
+//Now by trying the code we found in the code.
+
+tshery@MSI:/mnt/d/5th Semester/Computer System I (ITS304)/New folder/Assignment 1/bomb002$ gdb bomb
+GNU gdb (Ubuntu 9.2-0ubuntu1~20.04) 9.2
+Copyright (C) 2020 Free Software Foundation, Inc.
+License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.
+Type "show copying" and "show warranty" for details.
+This GDB was configured as "x86_64-linux-gnu".
+Type "show configuration" for configuration details.
+For bug reporting instructions, please see:
+<http://www.gnu.org/software/gdb/bugs/>.
+Find the GDB manual and other documentation resources online at:
+    <http://www.gnu.org/software/gdb/documentation/>.
+
+For help, type "help".
+Type "apropos word" to search for commands related to "word"...
+Reading symbols from bomb...
+(gdb) b phase_1
+Breakpoint 1 at 0x400e8d
+(gdb) r
+Starting program: /mnt/d/5th Semester/Computer System I (ITS304)/New folder/Assignment 1/bomb002/bomb
+Welcome to my fiendish little bomb. You have 6 phases with
+which to blow yourself up. Have a nice day!
+Public speaking is very easy.                                                                   //The input we found in the disassembler
+
+Breakpoint 1, 0x0000000000400e8d in phase_1 ()
+(gdb) disas
+Dump of assembler code for function phase_1:
+=> 0x0000000000400e8d <+0>:     sub    $0x8,%rsp
+   0x0000000000400e91 <+4>:     mov    $0x4023cc,%esi
+   0x0000000000400e96 <+9>:     callq  0x401339 <strings_not_equal>
+   0x0000000000400e9b <+14>:    test   %eax,%eax
+   0x0000000000400e9d <+16>:    je     0x400ea4 <phase_1+23>
+   0x0000000000400e9f <+18>:    callq  0x401438 <explode_bomb>
+   0x0000000000400ea4 <+23>:    add    $0x8,%rsp
+   0x0000000000400ea8 <+27>:    retq
+End of assembler dump.
+(gdb) u *0x0000000000400e9b
+0x0000000000400e9b in phase_1 ()
+(gdb) disas
+Dump of assembler code for function phase_1:
+   0x0000000000400e8d <+0>:     sub    $0x8,%rsp
+   0x0000000000400e91 <+4>:     mov    $0x4023cc,%esi
+   0x0000000000400e96 <+9>:     callq  0x401339 <strings_not_equal>
+=> 0x0000000000400e9b <+14>:    test   %eax,%eax
+   0x0000000000400e9d <+16>:    je     0x400ea4 <phase_1+23>
+   0x0000000000400e9f <+18>:    callq  0x401438 <explode_bomb>
+   0x0000000000400ea4 <+23>:    add    $0x8,%rsp
+   0x0000000000400ea8 <+27>:    retq
+End of assembler dump.
+(gdb) i r
+rax            0x0                 0                                                          //0 AND 0=0. Which means the answer is correct and will pass the bomb.
+rbx            0x4021f0            4202992
+rcx            0x1d                29
+rdx            0x0                 0
+rsi            0x4023cc            4203468
+rdi            0x4023e9            4203497
+rbp            0x0                 0x0
+rsp            0x7ffffffee2c0      0x7ffffffee2c0
+r8             0x6037a0            6305696
+r9             0x7c                124
+r10            0xfffffffffffff6ed  -2323
+r11            0x7fffff5e7400      140737477768192
+r12            0x400c60            4197472
+r13            0x7ffffffee3c0      140737488282560
+r14            0x0                 0
+r15            0x0                 0
+rip            0x400e9b            0x400e9b <phase_1+14>
+eflags         0x246               [ PF ZF IF ]
+cs             0x33                51
+ss             0x2b                43
+ds             0x0                 0
+es             0x0                 0
+fs             0x0                 0
+gs             0x0                 0
+
+//breakpoints prevents the diffused message from being displayed.
+
+(gdb) i b                                   
+Num     Type           Disp Enb Address            What
+1       breakpoint     keep y   0x0000000000400e8d <phase_1>                                      //breakpoint information
+        breakpoint already hit 1 time
+(gdb) del 1                                                                                       //To delete the breakpoint to display the message
+(gdb) r
+The program being debugged has been started already.
+Start it from the beginning? (y or n) y
+Starting program: /mnt/d/5th Semester/Computer System I (ITS304)/New folder/Assignment 1/bomb002/bomb
+Welcome to my fiendish little bomb. You have 6 phases with
+which to blow yourself up. Have a nice day!
+Public speaking is very easy.
+Phase 1 defused. How about the next one?                                                            //Diffused message is displayed
+
+
+
+
+
+
+
+
