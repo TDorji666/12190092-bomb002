@@ -1,0 +1,8 @@
+In this phase, we should input 6 integers and make sure it matches with the correct answer to diffuse the bomb. I knew the input to be in integer because when i looked inside the 
+read_six_numbers function, I noticed the format our input should be in. After that I tried to check the code of phase 2. Firstly, it specifies that the initial 2 input has to 
+be 0 and 1 if not it hits the bomb. When I looked at what each compare instructions does by typing info registers command to check the values stored in register. After going 
+through code, I found that there should be 6 inputs and noticed the pattern and was able to figure out the correct value.
+
+//Phase 2
+
+
