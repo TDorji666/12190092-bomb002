@@ -1,8 +1,386 @@
-In this phase, we should input 6 integers and make sure it matches with the correct answer to diffuse the bomb. I knew the input to be in integer because when i looked inside the 
-read_six_numbers function, I noticed the format our input should be in. After that I tried to check the code of phase 2. Firstly, it specifies that the initial 2 input has to 
-be 0 and 1 if not it hits the bomb. When I looked at what each compare instructions does by typing info registers command to check the values stored in register. After going 
+In this phase, we should input 6 integers and make sure it matches with the correct answer to diffuse the bomb. I knew the input to be in integer because when i looked inside 
+the read_six_numbers function, I noticed the format our input should be in. After that I tried to check the code of phase 2. Firstly, it specifies that the initial 2 input has
+to be 0 and 1 if not it hits the bomb. When I looked at what each compare instructions does by typing info registers command to check the values stored in register. After going 
 through code, I found that there should be 6 inputs and noticed the pattern and was able to figure out the correct value.
 
 //Phase 2
 
+tshery@MSI:/mnt/d/5th Semester/Computer System I (ITS304)/New folder/Assignment 1/bomb002$ gdb bomb
+GNU gdb (Ubuntu 9.2-0ubuntu1~20.04) 9.2
+Copyright (C) 2020 Free Software Foundation, Inc.
+License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.
+Type "show copying" and "show warranty" for details.
+This GDB was configured as "x86_64-linux-gnu".
+Type "show configuration" for configuration details.
+For bug reporting instructions, please see:
+<http://www.gnu.org/software/gdb/bugs/>.
+Find the GDB manual and other documentation resources online at:
+    <http://www.gnu.org/software/gdb/documentation/>.
 
+For help, type "help".
+Type "apropos word" to search for commands related to "word"...
+Reading symbols from bomb...
+(gdb) b phase_2                                                                                                           //Breakpopints
+Breakpoint 1 at 0x400ea9
+(gdb) r phase01.txt                                                                                                       //Using the saved answer to proceed
+Starting program: /mnt/d/5th Semester/Computer System I (ITS304)/New folder/Assignment 1/bomb002/bomb phase01.txt
+Welcome to my fiendish little bomb. You have 6 phases with
+which to blow yourself up. Have a nice day!
+Phase 1 defused. How about the next one?
+hello                                                                                                                     //Test input
+
+Breakpoint 1, 0x0000000000400ea9 in phase_2 ()
+(gdb) disas
+Dump of assembler code for function phase_2:
+=> 0x0000000000400ea9 <+0>:     push   %rbp
+   0x0000000000400eaa <+1>:     push   %rbx
+   0x0000000000400eab <+2>:     sub    $0x28,%rsp                                                                       //makes a stack frame of 56 bytes
+   0x0000000000400eaf <+6>:     mov    %fs:0x28,%rax
+   0x0000000000400eb8 <+15>:    mov    %rax,0x18(%rsp)
+   0x0000000000400ebd <+20>:    xor    %eax,%eax
+   0x0000000000400ebf <+22>:    mov    %rsp,%rsi
+   0x0000000000400ec2 <+25>:    callq  0x40145a <read_six_numbers>                                                      //6 input integers are required
+   0x0000000000400ec7 <+30>:    cmpl   $0x1,(%rsp)                                                                      //Comparison is made with 1
+   0x0000000000400ecb <+34>:    je     0x400ed2 <phase_2+41>
+   0x0000000000400ecd <+36>:    callq  0x401438 <explode_bomb>
+   0x0000000000400ed2 <+41>:    mov    %rsp,%rbx
+   0x0000000000400ed5 <+44>:    lea    0x14(%rsp),%rbp
+   0x0000000000400eda <+49>:    mov    (%rbx),%eax
+   0x0000000000400edc <+51>:    add    %eax,%eax
+   0x0000000000400ede <+53>:    cmp    %eax,0x4(%rbx)                                                                   //Another comparison is made
+   0x0000000000400ee1 <+56>:    je     0x400ee8 <phase_2+63>
+   0x0000000000400ee3 <+58>:    callq  0x401438 <explode_bomb>
+   0x0000000000400ee8 <+63>:    add    $0x4,%rbx
+   0x0000000000400eec <+67>:    cmp    %rbp,%rbx                                                                        //Comparison
+   0x0000000000400eef <+70>:    jne    0x400eda <phase_2+49>
+   0x0000000000400ef1 <+72>:    mov    0x18(%rsp),%rax
+   0x0000000000400ef6 <+77>:    xor    %fs:0x28,%rax
+   0x0000000000400eff <+86>:    je     0x400f06 <phase_2+93>
+   0x0000000000400f01 <+88>:    callq  0x400b00 <__stack_chk_fail@plt>
+   0x0000000000400f06 <+93>:    add    $0x28,%rsp                                                                       // closing the stack frame
+   0x0000000000400f0a <+97>:    pop    %rbx
+   0x0000000000400f0b <+98>:    pop    %rbp
+   0x0000000000400f0c <+99>:    retq
+End of assembler dump.
+
+// To examine the <read_six_numbers>
+
+(gdb) u * 0x0000000000400ec2
+0x0000000000400ec2 in phase_2 ()
+(gdb) si
+0x000000000040145a in read_six_numbers ()
+(gdb) disas
+Dump of assembler code for function read_six_numbers:
+=> 0x000000000040145a <+0>:     sub    $0x8,%rsp
+   0x000000000040145e <+4>:     mov    %rsi,%rdx
+   0x0000000000401461 <+7>:     lea    0x4(%rsi),%rcx
+   0x0000000000401465 <+11>:    lea    0x14(%rsi),%rax
+   0x0000000000401469 <+15>:    push   %rax
+   0x000000000040146a <+16>:    lea    0x10(%rsi),%rax
+   0x000000000040146e <+20>:    push   %rax
+   0x000000000040146f <+21>:    lea    0xc(%rsi),%r9
+   0x0000000000401473 <+25>:    lea    0x8(%rsi),%r8
+   0x0000000000401477 <+29>:    mov    $0x4025ab,%esi                                               //$0x4025ab is being put into $esi
+   0x000000000040147c <+34>:    mov    $0x0,%eax
+   0x0000000000401481 <+39>:    callq  0x400bb0 <__isoc99_sscanf@plt>
+   0x0000000000401486 <+44>:    add    $0x10,%rsp
+   0x000000000040148a <+48>:    cmp    $0x5,%eax
+   0x000000000040148d <+51>:    jg     0x401494 <read_six_numbers+58>
+   0x000000000040148f <+53>:    callq  0x401438 <explode_bomb>
+   0x0000000000401494 <+58>:    add    $0x8,%rsp
+   0x0000000000401498 <+62>:    retq
+End of assembler dump.
+
+//To examine $0x4025ab.
+
+(gdb) x/s 0x4025ab
+0x4025ab:       "%d %d %d %d %d %d"                                                               //The input that is expected. 
+
+//Since the expected input is integer, we will try again.
+
+(gdb) r
+The program being debugged has been started already.
+Start it from the beginning? (y or n) y
+Starting program: /mnt/d/5th Semester/Computer System I (ITS304)/New folder/Assignment 1/bomb002/bomb phase01.txt
+Welcome to my fiendish little bomb. You have 6 phases with
+which to blow yourself up. Have a nice day!
+Phase 1 defused. How about the next one?
+1 2 3 4 5 6                                                                                                     //Test Input
+
+Breakpoint 1, 0x0000000000400ea9 in phase_2 ()
+(gdb) disas
+Dump of assembler code for function phase_2:
+=> 0x0000000000400ea9 <+0>:     push   %rbp
+   0x0000000000400eaa <+1>:     push   %rbx
+   0x0000000000400eab <+2>:     sub    $0x28,%rsp
+   0x0000000000400eaf <+6>:     mov    %fs:0x28,%rax
+   0x0000000000400eb8 <+15>:    mov    %rax,0x18(%rsp)
+   0x0000000000400ebd <+20>:    xor    %eax,%eax
+   0x0000000000400ebf <+22>:    mov    %rsp,%rsi
+   0x0000000000400ec2 <+25>:    callq  0x40145a <read_six_numbers>                                                
+   0x0000000000400ec7 <+30>:    cmpl   $0x1,(%rsp)                                                                //The first input should be 1
+   0x0000000000400ecb <+34>:    je     0x400ed2 <phase_2+41>
+   0x0000000000400ecd <+36>:    callq  0x401438 <explode_bomb>
+   0x0000000000400ed2 <+41>:    mov    %rsp,%rbx
+   0x0000000000400ed5 <+44>:    lea    0x14(%rsp),%rbp
+   0x0000000000400eda <+49>:    mov    (%rbx),%eax
+   0x0000000000400edc <+51>:    add    %eax,%eax
+   0x0000000000400ede <+53>:    cmp    %eax,0x4(%rbx)
+   0x0000000000400ee1 <+56>:    je     0x400ee8 <phase_2+63>
+   0x0000000000400ee3 <+58>:    callq  0x401438 <explode_bomb>
+   0x0000000000400ee8 <+63>:    add    $0x4,%rbx
+   0x0000000000400eec <+67>:    cmp    %rbp,%rbx
+   0x0000000000400eef <+70>:    jne    0x400eda <phase_2+49>
+   0x0000000000400ef1 <+72>:    mov    0x18(%rsp),%rax
+   0x0000000000400ef6 <+77>:    xor    %fs:0x28,%rax
+   0x0000000000400eff <+86>:    je     0x400f06 <phase_2+93>
+   0x0000000000400f01 <+88>:    callq  0x400b00 <__stack_chk_fail@plt>
+   0x0000000000400f06 <+93>:    add    $0x28,%rsp
+   0x0000000000400f0a <+97>:    pop    %rbx
+   0x0000000000400f0b <+98>:    pop    %rbp
+   0x0000000000400f0c <+99>:    retq
+End of assembler dump.
+
+//Now to check those compare statement.
+
+(gdb) u *0x0000000000400ede
+0x0000000000400ede in phase_2 ()
+(gdb) disas
+Dump of assembler code for function phase_2:
+   0x0000000000400ea9 <+0>:     push   %rbp
+   0x0000000000400eaa <+1>:     push   %rbx
+   0x0000000000400eab <+2>:     sub    $0x28,%rsp
+   0x0000000000400eaf <+6>:     mov    %fs:0x28,%rax
+   0x0000000000400eb8 <+15>:    mov    %rax,0x18(%rsp)
+   0x0000000000400ebd <+20>:    xor    %eax,%eax
+   0x0000000000400ebf <+22>:    mov    %rsp,%rsi
+   0x0000000000400ec2 <+25>:    callq  0x40145a <read_six_numbers>
+   0x0000000000400ec7 <+30>:    cmpl   $0x1,(%rsp)
+   0x0000000000400ecb <+34>:    je     0x400ed2 <phase_2+41>
+   0x0000000000400ecd <+36>:    callq  0x401438 <explode_bomb>
+   0x0000000000400ed2 <+41>:    mov    %rsp,%rbx
+   0x0000000000400ed5 <+44>:    lea    0x14(%rsp),%rbp
+   0x0000000000400eda <+49>:    mov    (%rbx),%eax
+   0x0000000000400edc <+51>:    add    %eax,%eax
+=> 0x0000000000400ede <+53>:    cmp    %eax,0x4(%rbx)
+   0x0000000000400ee1 <+56>:    je     0x400ee8 <phase_2+63>
+   0x0000000000400ee3 <+58>:    callq  0x401438 <explode_bomb>
+   0x0000000000400ee8 <+63>:    add    $0x4,%rbx
+   0x0000000000400eec <+67>:    cmp    %rbp,%rbx
+   0x0000000000400eef <+70>:    jne    0x400eda <phase_2+49>
+   0x0000000000400ef1 <+72>:    mov    0x18(%rsp),%rax
+   0x0000000000400ef6 <+77>:    xor    %fs:0x28,%rax
+   0x0000000000400eff <+86>:    je     0x400f06 <phase_2+93>
+   0x0000000000400f01 <+88>:    callq  0x400b00 <__stack_chk_fail@plt>
+   0x0000000000400f06 <+93>:    add    $0x28,%rsp
+   0x0000000000400f0a <+97>:    pop    %rbx
+   0x0000000000400f0b <+98>:    pop    %rbp
+   0x0000000000400f0c <+99>:    retq
+End of assembler dump.
+(gdb) i r
+rax            0x2                 2
+rbx            0x7ffffffee280      140737488282240
+rcx            0x0                 0
+rdx            0x7ffffffee294      140737488282260
+rsi            0x0                 0
+rdi            0x7ffffffedc10      140737488280592
+rbp            0x7ffffffee294      0x7ffffffee294
+rsp            0x7ffffffee280      0x7ffffffee280
+r8             0xffffffff          4294967295
+r9             0x0                 0
+r10            0x7fffff74eac0      140737479240384
+r11            0x0                 0
+r12            0x400c60            4197472
+r13            0x7ffffffee3b0      140737488282544
+r14            0x0                 0
+r15            0x0                 0
+rip            0x400ede            0x400ede <phase_2+53>
+eflags         0x202               [ IF ]
+cs             0x33                51
+ss             0x2b                43
+ds             0x0                 0
+es             0x0                 0
+fs             0x0                 0
+gs             0x0                 0
+(gdb) x/d $rbx+4
+0x7ffffffee284: 2
+
+//$eax and $rbx are being compared, and since both are of equal value, i.e. 2, we can jump over the bomb.
+
+(gdb) ni
+0x0000000000400ee1 in phase_2 ()
+(gdb) ni
+0x0000000000400ee8 in phase_2 ()
+(gdb) disas
+Dump of assembler code for function phase_2:
+   0x0000000000400ea9 <+0>:     push   %rbp
+   0x0000000000400eaa <+1>:     push   %rbx
+   0x0000000000400eab <+2>:     sub    $0x28,%rsp
+   0x0000000000400eaf <+6>:     mov    %fs:0x28,%rax
+   0x0000000000400eb8 <+15>:    mov    %rax,0x18(%rsp)
+   0x0000000000400ebd <+20>:    xor    %eax,%eax
+   0x0000000000400ebf <+22>:    mov    %rsp,%rsi
+   0x0000000000400ec2 <+25>:    callq  0x40145a <read_six_numbers>
+   0x0000000000400ec7 <+30>:    cmpl   $0x1,(%rsp)
+   0x0000000000400ecb <+34>:    je     0x400ed2 <phase_2+41>
+   0x0000000000400ecd <+36>:    callq  0x401438 <explode_bomb>
+   0x0000000000400ed2 <+41>:    mov    %rsp,%rbx
+   0x0000000000400ed5 <+44>:    lea    0x14(%rsp),%rbp
+   0x0000000000400eda <+49>:    mov    (%rbx),%eax
+   0x0000000000400edc <+51>:    add    %eax,%eax
+   0x0000000000400ede <+53>:    cmp    %eax,0x4(%rbx)
+   0x0000000000400ee1 <+56>:    je     0x400ee8 <phase_2+63>
+   0x0000000000400ee3 <+58>:    callq  0x401438 <explode_bomb>
+=> 0x0000000000400ee8 <+63>:    add    $0x4,%rbx
+   0x0000000000400eec <+67>:    cmp    %rbp,%rbx
+   0x0000000000400eef <+70>:    jne    0x400eda <phase_2+49>
+   0x0000000000400ef1 <+72>:    mov    0x18(%rsp),%rax
+   0x0000000000400ef6 <+77>:    xor    %fs:0x28,%rax
+   0x0000000000400eff <+86>:    je     0x400f06 <phase_2+93>
+   0x0000000000400f01 <+88>:    callq  0x400b00 <__stack_chk_fail@plt>
+   0x0000000000400f06 <+93>:    add    $0x28,%rsp
+   0x0000000000400f0a <+97>:    pop    %rbx
+   0x0000000000400f0b <+98>:    pop    %rbp
+   0x0000000000400f0c <+99>:    retq
+End of assembler dump.
+
+//As expected we jumped over the bomb.
+//Going though more compare statements
+
+(gdb) u *0x0000000000400ede
+0x0000000000400ede in phase_2 ()
+(gdb) disas
+Dump of assembler code for function phase_2:
+   0x0000000000400ea9 <+0>:     push   %rbp
+   0x0000000000400eaa <+1>:     push   %rbx
+   0x0000000000400eab <+2>:     sub    $0x28,%rsp
+   0x0000000000400eaf <+6>:     mov    %fs:0x28,%rax
+   0x0000000000400eb8 <+15>:    mov    %rax,0x18(%rsp)
+   0x0000000000400ebd <+20>:    xor    %eax,%eax
+   0x0000000000400ebf <+22>:    mov    %rsp,%rsi
+   0x0000000000400ec2 <+25>:    callq  0x40145a <read_six_numbers>
+   0x0000000000400ec7 <+30>:    cmpl   $0x1,(%rsp)
+   0x0000000000400ecb <+34>:    je     0x400ed2 <phase_2+41>
+   0x0000000000400ecd <+36>:    callq  0x401438 <explode_bomb>
+   0x0000000000400ed2 <+41>:    mov    %rsp,%rbx
+   0x0000000000400ed5 <+44>:    lea    0x14(%rsp),%rbp
+   0x0000000000400eda <+49>:    mov    (%rbx),%eax
+   0x0000000000400edc <+51>:    add    %eax,%eax
+=> 0x0000000000400ede <+53>:    cmp    %eax,0x4(%rbx)
+   0x0000000000400ee1 <+56>:    je     0x400ee8 <phase_2+63>
+   0x0000000000400ee3 <+58>:    callq  0x401438 <explode_bomb>
+   0x0000000000400ee8 <+63>:    add    $0x4,%rbx
+   0x0000000000400eec <+67>:    cmp    %rbp,%rbx
+   0x0000000000400eef <+70>:    jne    0x400eda <phase_2+49>
+   0x0000000000400ef1 <+72>:    mov    0x18(%rsp),%rax
+   0x0000000000400ef6 <+77>:    xor    %fs:0x28,%rax
+   0x0000000000400eff <+86>:    je     0x400f06 <phase_2+93>
+   0x0000000000400f01 <+88>:    callq  0x400b00 <__stack_chk_fail@plt>
+   0x0000000000400f06 <+93>:    add    $0x28,%rsp
+   0x0000000000400f0a <+97>:    pop    %rbx
+   0x0000000000400f0b <+98>:    pop    %rbp
+   0x0000000000400f0c <+99>:    retq
+End of assembler dump.
+(gdb) i r
+rax            0x4                 4
+rbx            0x7ffffffee284      140737488282244
+rcx            0x0                 0
+rdx            0x7ffffffee294      140737488282260
+rsi            0x0                 0
+rdi            0x7ffffffedc10      140737488280592
+rbp            0x7ffffffee294      0x7ffffffee294
+rsp            0x7ffffffee280      0x7ffffffee280
+r8             0xffffffff          4294967295
+r9             0x0                 0
+r10            0x7fffff74eac0      140737479240384
+r11            0x0                 0
+r12            0x400c60            4197472
+r13            0x7ffffffee3b0      140737488282544
+r14            0x0                 0
+r15            0x0                 0
+rip            0x400ede            0x400ede <phase_2+53>
+eflags         0x202               [ IF ]
+cs             0x33                51
+ss             0x2b                43
+ds             0x0                 0
+es             0x0                 0
+fs             0x0                 0
+gs             0x0                 0
+(gdb) x/d $rbx+4
+0x7ffffffee288: 3
+
+//We can see that %rbx holds each digit that we inputted from "1 2 3 4 5 6". We are looping through each digit in our input and comparing it to the correct digits, which 
+are in %rax. Since %rax != %rbx, the bomb will explode.
+
+(gdb) ni
+0x0000000000400ee1 in phase_2 ()
+(gdb) disas
+Dump of assembler code for function phase_2:
+   0x0000000000400ea9 <+0>:     push   %rbp
+   0x0000000000400eaa <+1>:     push   %rbx
+   0x0000000000400eab <+2>:     sub    $0x28,%rsp
+   0x0000000000400eaf <+6>:     mov    %fs:0x28,%rax
+   0x0000000000400eb8 <+15>:    mov    %rax,0x18(%rsp)
+   0x0000000000400ebd <+20>:    xor    %eax,%eax
+   0x0000000000400ebf <+22>:    mov    %rsp,%rsi
+   0x0000000000400ec2 <+25>:    callq  0x40145a <read_six_numbers>
+   0x0000000000400ec7 <+30>:    cmpl   $0x1,(%rsp)
+   0x0000000000400ecb <+34>:    je     0x400ed2 <phase_2+41>
+   0x0000000000400ecd <+36>:    callq  0x401438 <explode_bomb>
+   0x0000000000400ed2 <+41>:    mov    %rsp,%rbx
+   0x0000000000400ed5 <+44>:    lea    0x14(%rsp),%rbp
+   0x0000000000400eda <+49>:    mov    (%rbx),%eax
+   0x0000000000400edc <+51>:    add    %eax,%eax
+   0x0000000000400ede <+53>:    cmp    %eax,0x4(%rbx)
+=> 0x0000000000400ee1 <+56>:    je     0x400ee8 <phase_2+63>
+   0x0000000000400ee3 <+58>:    callq  0x401438 <explode_bomb>
+   0x0000000000400ee8 <+63>:    add    $0x4,%rbx
+   0x0000000000400eec <+67>:    cmp    %rbp,%rbx
+   0x0000000000400eef <+70>:    jne    0x400eda <phase_2+49>
+   0x0000000000400ef1 <+72>:    mov    0x18(%rsp),%rax
+   0x0000000000400ef6 <+77>:    xor    %fs:0x28,%rax
+   0x0000000000400eff <+86>:    je     0x400f06 <phase_2+93>
+   0x0000000000400f01 <+88>:    callq  0x400b00 <__stack_chk_fail@plt>
+   0x0000000000400f06 <+93>:    add    $0x28,%rsp
+   0x0000000000400f0a <+97>:    pop    %rbx
+   0x0000000000400f0b <+98>:    pop    %rbp
+   0x0000000000400f0c <+99>:    retq
+End of assembler dump.
+(gdb) ni
+0x0000000000400ee3 in phase_2 ()
+(gdb) disas
+Dump of assembler code for function phase_2:
+   0x0000000000400ea9 <+0>:     push   %rbp
+   0x0000000000400eaa <+1>:     push   %rbx
+   0x0000000000400eab <+2>:     sub    $0x28,%rsp
+   0x0000000000400eaf <+6>:     mov    %fs:0x28,%rax
+   0x0000000000400eb8 <+15>:    mov    %rax,0x18(%rsp)
+   0x0000000000400ebd <+20>:    xor    %eax,%eax
+   0x0000000000400ebf <+22>:    mov    %rsp,%rsi
+   0x0000000000400ec2 <+25>:    callq  0x40145a <read_six_numbers>
+   0x0000000000400ec7 <+30>:    cmpl   $0x1,(%rsp)
+   0x0000000000400ecb <+34>:    je     0x400ed2 <phase_2+41>
+   0x0000000000400ecd <+36>:    callq  0x401438 <explode_bomb>
+   0x0000000000400ed2 <+41>:    mov    %rsp,%rbx
+   0x0000000000400ed5 <+44>:    lea    0x14(%rsp),%rbp
+   0x0000000000400eda <+49>:    mov    (%rbx),%eax
+   0x0000000000400edc <+51>:    add    %eax,%eax
+   0x0000000000400ede <+53>:    cmp    %eax,0x4(%rbx)
+   0x0000000000400ee1 <+56>:    je     0x400ee8 <phase_2+63>
+=> 0x0000000000400ee3 <+58>:    callq  0x401438 <explode_bomb>
+   0x0000000000400ee8 <+63>:    add    $0x4,%rbx
+   0x0000000000400eec <+67>:    cmp    %rbp,%rbx
+   0x0000000000400eef <+70>:    jne    0x400eda <phase_2+49>
+   0x0000000000400ef1 <+72>:    mov    0x18(%rsp),%rax
+   0x0000000000400ef6 <+77>:    xor    %fs:0x28,%rax
+   0x0000000000400eff <+86>:    je     0x400f06 <phase_2+93>
+   0x0000000000400f01 <+88>:    callq  0x400b00 <__stack_chk_fail@plt>
+   0x0000000000400f06 <+93>:    add    $0x28,%rsp
+   0x0000000000400f0a <+97>:    pop    %rbx
+   0x0000000000400f0b <+98>:    pop    %rbp
+   0x0000000000400f0c <+99>:    retq
+End of assembler dump.
+
+//We now know 3 correct answer i.e. "1 2 4". From these integers, we can see a pattern, we see we are essentially doubling whatever was in %eax.
