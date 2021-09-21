@@ -384,3 +384,31 @@ Dump of assembler code for function phase_2:
 End of assembler dump.
 
 //We now know 3 correct answer i.e. "1 2 4". From these integers, we can see a pattern, we see we are essentially doubling whatever was in %eax.
+//To check if the answer is correct, we will proceed without using breakpoints to display the message.
+
+tshery@MSI:/mnt/d/5th Semester/Computer System I (ITS304)/New folder/Assignment 1/bomb002$ gdb bomb
+GNU gdb (Ubuntu 9.2-0ubuntu1~20.04) 9.2
+Copyright (C) 2020 Free Software Foundation, Inc.
+License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.
+Type "show copying" and "show warranty" for details.
+This GDB was configured as "x86_64-linux-gnu".
+Type "show configuration" for configuration details.
+For bug reporting instructions, please see:
+<http://www.gnu.org/software/gdb/bugs/>.
+Find the GDB manual and other documentation resources online at:
+    <http://www.gnu.org/software/gdb/documentation/>.
+
+For help, type "help".
+Type "apropos word" to search for commands related to "word"...
+Reading symbols from bomb...
+(gdb) r phase01.txt
+Starting program: /mnt/d/5th Semester/Computer System I (ITS304)/New folder/Assignment 1/bomb002/bomb phase01.txt
+Welcome to my fiendish little bomb. You have 6 phases with
+which to blow yourself up. Have a nice day!
+Phase 1 defused. How about the next one?
+1 2 4 8 16 32
+That's number 2.  Keep going!                                               //As expected the answer was correct since the message is displayed
+
+//Correct answer- 1 2 4 8 16 32
